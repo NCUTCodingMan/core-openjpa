@@ -3,6 +3,7 @@ package com.rain.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Cache;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -72,9 +73,20 @@ public class JpaTest {
 			System.out.println(teacher.getTeacherName());
 		}
 		
+		/**
+		 * 缓存的触发时机是什么
+		 * */
+		Cache cache= entityManagerFactory.getCache();
+		
+		if(cache.contains(Grade.class, 15)){
+			System.out.println("该元素已缓存...");
+		}else{
+			System.out.println("元素未被缓存");
+		}
+		
 		System.out.println(grade);
 		
-		
+		grade = entityManager.find(Grade.class, 15);
 	}
 	
 	@Test
@@ -116,5 +128,59 @@ public class JpaTest {
 	@AfterClass
 	public static void destory(){
 		entityManagerFactory.close();
+	}
+	
+	/**
+	 * 外键约束
+	 * 事务的开启与提交,这一点与mybatis不同.手动开启事务,提交事务.切记
+	 * 
+	 * 下面两个被管理的引用,返回的是同一个实例
+	 * */
+	@Test
+	public void testCache() throws Exception{
+		
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+		EntityTransaction transaction = entityManager.getTransaction();
+		transaction.begin();
+		
+		Teacher teacher = new Teacher();
+		teacher.setTeacherName("scott");
+		teacher.setTeacherAge(20);
+		teacher.setContact("13659841011");
+		teacher.setAddress("Beijing jingyuanzhuang");
+		
+		Grade grade = new Grade();
+		grade.setGraderNo(13);
+		
+		teacher.setGrade(grade);
+		
+		entityManager.persist(teacher);
+		
+		transaction.commit();
+		
+		/**
+		 *  没有执行查询语句(即并没有访问数据库,直接从内存中读取对象信息),似乎有某种机制,直接获取的对象信息.
+		 *  在一个持久化上下文中,对于任何特定的数据库表记录行,都只有一个对象的实例.然而,同一个实体可以有其他
+		 *  实体管理器对其操作,此时需要使用乐观锁或者悲观锁来保证相关操作的正确性
+		 *  
+		 *  下面的代码简单模拟在不同的EntityManager中持有同一个数据库表记录行,从而导致数据的不一致性.
+		 */
+		Teacher alias = entityManager.find(Teacher.class, teacher.getTeacherId());
+		
+		System.out.println(teacher == alias);
+		
+		// 声明另外一个EntityManager
+		EntityManager entityManagerAlias = entityManagerFactory.createEntityManager();
+		transaction = entityManagerAlias.getTransaction();
+		transaction.begin();
+		Teacher copy = entityManagerAlias.find(Teacher.class, teacher.getTeacherId());
+		copy.setTeacherName("root");
+		transaction.commit();
+		
+		alias = entityManager.find(Teacher.class, teacher.getTeacherId());
+		System.out.println(teacher == alias ? teacher : alias);
+		
+		entityManager.close();
 	}
 }

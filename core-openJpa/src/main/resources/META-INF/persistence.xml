@@ -9,30 +9,31 @@
 		<provider>org.apache.openjpa.persistence.PersistenceProviderImpl</provider>
 
 		<!-- 配置持久化类(对象) -->
-		<class>com.rain.entity.Customer</class>
 		<class>com.rain.entity.Teacher</class>
 		<class>com.rain.entity.Grade</class>
 
 		<!-- 配置数据库连接 -->
 		<properties>
 			<!-- 连接数据库的基本信息 -->
-			<property name="openjpa.ConnectionURL" value="jdbc:mysql:///springtest" />  
-            <property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver" />  
-            <property name="openjpa.ConnectionUserName" value="root" />  
-            <property name="openjpa.ConnectionPassword" value="tiger" />
-			
+			<property name="openjpa.ConnectionURL" value="jdbc:mysql:///springtest" />
+			<property name="openjpa.ConnectionDriverName" value="com.mysql.jdbc.Driver" />
+			<property name="openjpa.ConnectionUserName" value="root" />
+			<property name="openjpa.ConnectionPassword" value="tiger" />
+
 			<!-- 设置日志,默认日志级别,运行时,查询以及打印SQL -->
-			<property name="openjpa.Log" value="DefaultLevel=WARN,Runtime=TRACE,SQL=TRACE,Query=TRACE"/>
-		
-			<!-- 缓存设置 -->
-			<!-- 
-				DataCache用于缓存Entity,CacheSize为缓存的Entity的数量;SoftRefenrence为软引用(与其他的orm
-				框架的差异之处),可以设置缓存的清空时间以及设置某实体的过期时间
-			 -->
-			<property name="openjpa.DataCache" value="true(CacheSize=5000, SoftReferenceSize=0)" />  
+			<property name="openjpa.Log"
+				value="DefaultLevel=WARN,Runtime=TRACE,SQL=TRACE,Query=TRACE" />
+
+			<!-- 缓存设置,目前对opnejpa缓存的实现机制不清楚 -->
+			<!-- DataCache用于缓存Entity,CacheSize为缓存的Entity的数量;SoftRefenrence为软引用(与其他的orm 
+				框架的差异之处),可以设置缓存的清空时间以及设置某实体的过期时间 -->
+			 
+			<property name="openjpa.DataCache" value="true(CacheSize=1000, SoftReferenceSize=0)" />
+			
 			<!-- 单jvm还是多jvm,openjpa的缓存可以在分布式环境下使用 -->
+			 
 			<property name="openjpa.RemoteCommitProvider" value="sjvm" />
-		
+			 
 			<!-- 在设置了DataCache之后,默认会使用query cache;query cache会缓存query结果 -->
 		</properties>
 	</persistence-unit>
