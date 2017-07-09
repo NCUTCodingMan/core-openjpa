@@ -14,8 +14,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.openjpa.persistence.DataCache;
+
+/**
+ * 常用的注解与使用方式
+ * */
 @Entity
 @Table(name = "tab_teacher")
+@DataCache(timeout = 300000)
 public class Teacher implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 1L;

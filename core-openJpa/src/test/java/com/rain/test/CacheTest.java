@@ -31,7 +31,7 @@ public class CacheTest {
 		
 		EntityManager entityManagerAlias = entityManagerFactory.createEntityManager();
 		
-		EntityTransaction transaction = entityManager.getTransaction();
+//		EntityTransaction transaction = entityManager.getTransaction();
 		
 		/*
 		transaction.begin();
@@ -78,6 +78,7 @@ public class CacheTest {
 		 * 		(1)分析上面的代码,在查询主键分别为24,23的Teacher时,都会将Teacher对象设置到缓存中(可以查看Cache中的ConcurrentHashMap查看).
 		 * 			问题,不同的EntityManager访问主键相同的Teacher时,获取的Teacher对象内存地址并不一样.个人觉得此处是因为事务的原因.
 		 * 			EntityManager代表的是从事务隔离这块入手,若A事务可以查看到B事务中某些对象的状态,并共用该状态,这个容易出现问题
+		 * 			在查询Teacher时,也会将其关联关系的Grade也设置到缓存中(* * *)
 		 * 		(2)再分析,当持久化数据发生了更新或者删除时,Data Cache部分的操作流程.默认情况下会移除相关对象
 		 * */
 		Cache cache = entityManagerFactory.getCache();
@@ -102,25 +103,30 @@ public class CacheTest {
 		transaction.begin();
 		
 		Teacher teacher = entityManager.find(Teacher.class, 24);
-		
-		teacher.setTeacherName("are you delete");
-		
+				
 		Cache cache = entityManagerFactory.getCache();
 		System.out.println(cache.contains(Teacher.class, teacher.getTeacherId()));
 		
+		System.out.println("before:" + teacher);
+		
+		teacher.setTeacherName("whether you are delete 11");
+		
 		entityManager.persist(teacher);
-		
-		EntityManager entityManagerAlias = entityManagerFactory.createEntityManager();
-		
-		Teacher teacherAlias = entityManagerAlias.find(Teacher.class, teacher.getTeacherId());
-		System.out.println(teacherAlias.toString());
 		
 		transaction.commit();
 		entityManager.close();
 		
+		cache = entityManagerFactory.getCache();
+		
+		if(cache.contains(Teacher.class, teacher.getTeacherId())){
+			// 将teacher移除缓存
+			cache.evict(Teacher.class, teacher.getTeacherId());
+		}
+		
+		//难以看到cache中第二次的teacher的值是什么
 		System.out.println(cache.contains(Teacher.class, teacher.getTeacherId()));
 		
-		cache = entityManagerFactory.getCache();
+		System.out.println("after:" + teacher);
 		
 		/**
 		 * 如何通过反射机制获取父类中申明的属性与方法

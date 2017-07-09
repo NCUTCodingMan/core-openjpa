@@ -15,12 +15,16 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.openjpa.persistence.DataCache;
+
 /**
  * 默认情况下采用Property的方式映射属性信息,在Field(get())上设置注解信息将会报错
  * 	错误的信息主要是不能采用两种混合的方式Access属性
+ * 设置缓存时间为5分钟
  * */
 @Entity
 @Table(name = "tab_grade")
+@DataCache(timeout = 300000)
 public class Grade implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 3273014492171285838L;
@@ -53,6 +57,7 @@ public class Grade implements Serializable {
 	 * 	(3) 多对多
 	 * 		通过@ManyToMany来表示
 	 * 			多对多的关系需要设置一张中间表,两个主键作为外键关联
+	 * 		暂时未做相关demo查看
 	 * 		
 	 * */
 	@OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY,mappedBy = "grade")

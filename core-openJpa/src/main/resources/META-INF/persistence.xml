@@ -27,13 +27,11 @@
 			<!-- 缓存设置,目前对opnejpa缓存的实现机制不清楚 -->
 			<!-- DataCache用于缓存Entity,CacheSize为缓存的Entity的数量;SoftRefenrence为软引用(与其他的orm 
 				框架的差异之处),可以设置缓存的清空时间以及设置某实体的过期时间 -->
-			 
-			<property name="openjpa.DataCache" value="true(CacheSize=1000, SoftReferenceSize=0)" />
-			
+			<property name="openjpa.DataCache"
+				value="true(CacheSize=1000, SoftReferenceSize=0, EvictOnBulkUpdate=true)" />
 			<!-- 单jvm还是多jvm,openjpa的缓存可以在分布式环境下使用 -->
-			 
 			<property name="openjpa.RemoteCommitProvider" value="sjvm" />
-			 
+
 			<!-- 在设置了DataCache之后,默认会使用query cache;query cache会缓存query结果 -->
 		</properties>
 	</persistence-unit>
